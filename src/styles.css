@@ -8,6 +8,12 @@
   --color-mute: #8a93a6;
   --color-anima: #00e8d5;
   --color-kima: #ff2e78;
+  --color-indigo: #2b3a67;
+  --color-bronze: #c4a574;
+  --color-sapphire: #3d6baa;
+  --color-jade: #3d8b7a;
+  --color-ember: #e07a3d;
+  --color-gold: #d4af37;
   --color-chrome: #c5d0dc;
   --color-line: color-mix(in oklab, #00e8d5 28%, transparent);
   --color-line-kima: color-mix(in oklab, #ff2e78 42%, transparent);
@@ -61,19 +67,95 @@
   }
 }
 
-.fx-kima {
-  background: radial-gradient(
-    circle at 50% 40%,
-    color-mix(in oklab, var(--color-kima) 45%, transparent),
-    transparent 48%
-  );
+.ken {
+  transform: scale(1.08);
+  animation: ken 18s ease-in-out alternate infinite;
+  background-size: cover;
+  background-position: center 28%;
 }
-.fx-anima {
-  background: radial-gradient(
-    circle at 50% 35%,
-    color-mix(in oklab, var(--color-anima) 50%, transparent),
-    transparent 50%
-  );
+
+@keyframes ken {
+  from {
+    transform: scale(1.04) translate3d(-1.2%, 0, 0);
+  }
+  to {
+    transform: scale(1.16) translate3d(1.6%, 0.8%, 0);
+  }
+}
+
+.breathe {
+  animation: breathe 5.5s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: saturate(1);
+  }
+  50% {
+    transform: translate3d(0, -10px, 0) scale(1.03);
+    filter: saturate(1.12);
+  }
+}
+
+.well-glow {
+  animation: well 2.4s ease-in-out infinite;
+}
+
+@keyframes well {
+  0%,
+  100% {
+    box-shadow: 0 0 18px color-mix(in oklab, var(--color-anima) 35%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 36px color-mix(in oklab, var(--color-kima) 40%, transparent);
+  }
+}
+
+.lattice {
+  background-image:
+    radial-gradient(circle at 18% 18%, color-mix(in oklab, var(--color-anima) 22%, transparent), transparent 26%),
+    radial-gradient(circle at 84% 12%, color-mix(in oklab, var(--color-kima) 16%, transparent), transparent 22%),
+    radial-gradient(circle at 50% 90%, color-mix(in oklab, var(--color-sapphire) 18%, transparent), transparent 30%),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 72px,
+      color-mix(in oklab, var(--color-anima) 5%, transparent) 72px 73px
+    );
+  mix-blend-mode: screen;
+  opacity: 0.55;
+  pointer-events: none;
+  animation: lattice-drift 28s linear infinite;
+}
+
+@keyframes lattice-drift {
+  from {
+    background-position: 0 0, 0 0, 0 0, 0 0;
+  }
+  to {
+    background-position: 120px 0, -80px 0, 0 -40px, 72px 0;
+  }
+}
+
+.enter {
+  animation: enter 520ms cubic-bezier(0.2, 0, 0, 1) both;
+}
+.enter-delay {
+  animation: enter 520ms cubic-bezier(0.2, 0, 0, 1) 90ms both;
+}
+
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -84,5 +166,11 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-}
 
+  .ken,
+  .breathe,
+  .lattice {
+    animation: none;
+    transform: none;
+  }
+}

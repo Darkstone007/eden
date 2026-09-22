@@ -1,21 +1,28 @@
 import { create } from "zustand";
+import { CONTINENT_BEAT, BEATS } from "./story";
 import { CONTINENTS, PATHS, pickEnding } from "./canon";
+import { sfx } from "./audio";
 import { clearSave, loadSave, writeSave } from "./save";
-import type { ClassId, ContinentId, EndingId, Mode, PathId, StoryBeat } from "./types";
+import type {
+  ClassId,
+  ContinentId,
+  EndingId,
+  FightDef,
+  Mode,
+  PathId,
+  StoryBeat,
+  View,
+} from "./types";
+import { FIGHTS } from "./canon";
 
-export type HudSnap = {
-  hp: number;
-  max: number;
-  kima: number;
-  anima: number;
-  continent: ContinentId;
-  aimX: number;
-  aimY: number;
-  interact: string | null;
-};
+const saved =
+  typeof window !== "undefined"
+    ? loadSave()
+    : { loop: 1, memories: {}, visited: [] as ContinentId[], people: ["azrael"] };
 
 type GameState = {
   mode: Mode;
+  view: View;
   auto: boolean;
   loop: number;
   oath: number;
@@ -23,37 +30,41 @@ type GameState = {
   cls: ClassId;
   path: PathId | null;
   memories: Record<string, boolean | number | string>;
+  visited: ContinentId[];
+  people: string[];
+  beatId: string;
   story: StoryBeat | null;
+  fight: FightDef | null;
   toast: string | null;
   ending: EndingId | null;
-  paused: boolean;
-  hud: HudSnap;
+  muted: boolean;
   startPlay: (auto: boolean) => void;
-  setStory: (story: StoryBeat | null) => void;
   choose: (id: string) => void;
-  tickMeters: (oath: number, ctrl: number, why?: string) => void;
-  remember: (key: string, value?: boolean | number | string) => void;
-  persist: () => void;
-  bumpLoop: () => void;
-  setToast: (t: string | null) => void;
-  setHud: (h: Partial<HudSnap>) => void;
-  setEnding: (e: EndingId | null) => void;
-  setPaused: (p: boolean) => void;
+  enterContinent: (id: ContinentId) => void;
+  finishCombat: (won: boolean) => void;
+  openCodex: () => void;
+  openMap: () => void;
+  closeOverlay: () => void;
   toTitle: () => void;
   wipe: () => void;
+  toggleMute: () => void;
 };
 
 function clamp(n: number) {
   return Math.max(0, Math.min(100, n));
 }
 
-const saved =
-  typeof window !== "undefined"
-    ? loadSave()
-    : { loop: 1, memories: {} as Record<string, boolean | number | string> };
+function persist(g: Pick<GameState, "loop" | "memories" | "visited" | "people">) {
+  writeSave({ version: 2, loop: g.loop, memories: g.memories, visited: g.visited, people: g.people });
+}
+
+function withBeat(beat: StoryBeat, loop: number): StoryBeat {
+  return { ...beat, text: loop > 1 && beat.alt ? beat.alt : beat.text };
+}
 
 export const useGame = create<GameState>((set, get) => ({
   mode: "title",
+  view: "scene",
   auto: false,
   loop: saved.loop ?? 1,
   oath: 0,
@@ -61,203 +72,191 @@ export const useGame = create<GameState>((set, get) => ({
   cls: "UNWRITTEN",
   path: null,
   memories: saved.memories ?? {},
+  visited: saved.visited ?? [],
+  people: saved.people?.length ? saved.people : ["azrael"],
+  beatId: "wake",
   story: null,
+  fight: null,
   toast: null,
   ending: null,
-  paused: false,
-  hud: {
-    hp: 100,
-    max: 100,
-    kima: 42,
-    anima: 42,
-    continent: "elysara",
-    aimX: 0,
-    aimY: 0,
-    interact: null,
-  },
+  muted: false,
 
-  startPlay: (auto) =>
+  startPlay: (auto) => {
+    const loop = get().loop;
+    const wake = withBeat(BEATS.wake, loop);
     set({
       mode: "play",
+      view: "scene",
       auto,
       oath: 0,
       ctrl: 0,
       cls: "UNWRITTEN",
       path: null,
       ending: null,
-      paused: true,
+      fight: null,
       toast: null,
-      hud: {
-        hp: 100,
-        max: 100,
-        kima: 42,
-        anima: 42,
-        continent: "elysara",
-        aimX: 0,
-        aimY: 0,
-        interact: null,
-      },
-      story: {
-        who: "City of Echoes · Fracture Hour",
-        portrait: "/art/azrael.jpg",
-        text:
-          get().loop > 1
-            ? "Cold stone. A shard on a cord. A visor you did not ask for. The visor already knows this stone. Somewhere in the lattice, a later name waits: Ryx."
-            : "Cold stone. A shard on a cord. A visor you did not ask for. The sky over Eden is a cracked white lattice.",
-        choices: [
-          { tag: "Lapis", label: PATHS.lapis.line, id: "path-lapis" },
-          { tag: "Forged", label: PATHS.forged.line, id: "path-forged" },
-          { tag: "Crucible", label: PATHS.crucible.line, id: "path-crucible", auto: true },
-        ],
-      },
-    }),
-
-  setStory: (story) => set({ story, paused: !!story }),
+      people: get().people.length ? get().people : ["azrael"],
+      beatId: "wake",
+      story: wake,
+      visited: get().visited.includes("elysara") ? get().visited : [...get().visited, "elysara"],
+    });
+  },
 
   choose: (id) => {
     const g = get();
     if (id.startsWith("path-")) {
       const path = id.slice(5) as PathId;
       const p = PATHS[path];
+      sfx.oath();
       set({
         cls: p.cls,
         path,
         toast: `Class written: ${p.cls}`,
+        beatId: "classed",
         story: {
-          who: "SYSTEM",
-          sys: true,
-          portrait: "/art/azrael.jpg",
-          text: `Class written: ${p.cls}. Resonance Well marked. Overflow possible. Sanity is a resource. Walk. Sit with Heartgrim, or file the form.`,
-          choices: [
-            { tag: "Oath", label: "Sit with him. Let him name the shard.", id: "heartgrim-sit", auto: true },
-            { tag: "Control", label: "Walk past. File the System form.", id: "heartgrim-prompt" },
-          ],
+          ...withBeat(BEATS.classed, g.loop),
+          text: `Class written: ${p.cls}. ${p.line} Resonance Well marked. Overflow possible. Sanity is a resource. Walk. Sit with Heartgrim, or file the form.`,
         },
       });
       return;
     }
-    if (id === "heartgrim-sit" || id === "heartgrim-prompt") {
-      const sit = id === "heartgrim-sit";
-      const memories = { ...g.memories, metHeartgrim: true, namedTheShard: sit };
-      const oath = sit ? clamp(g.oath + 18) : g.oath;
-      const ctrl = sit ? g.ctrl : clamp(g.ctrl + 18);
+
+    const choice = g.story?.choices.find((c) => c.id === id);
+    if (!choice) {
+      if (id === "hour-reset") {
+        const loop = g.loop + 1;
+        const memories = { ...g.memories, loopCount: loop };
+        writeSave({ version: 2, loop, memories, visited: g.visited, people: g.people });
+        set({ loop, memories, ending: null, view: "scene" });
+        get().startPlay(g.auto);
+        return;
+      }
+      return;
+    }
+
+    const memories = { ...g.memories };
+    if (choice.remember) memories[choice.remember] = true;
+    const people = choice.person && !g.people.includes(choice.person) ? [...g.people, choice.person] : g.people;
+    const oath = clamp(g.oath + (choice.oath ?? 0));
+    const ctrl = clamp(g.ctrl + (choice.ctrl ?? 0));
+    if (choice.oath) sfx.oath();
+    else if (choice.ctrl) sfx.ctrl();
+    else sfx.click();
+
+    let toast = g.toast;
+    if (choice.oath) toast = `Oath +${choice.oath}`;
+    if (choice.ctrl) toast = `Control +${choice.ctrl}`;
+
+    if (choice.ending) {
+      const forced = choice.ending;
+      persist({ loop: g.loop, memories, visited: g.visited, people });
+      set({ memories, people, oath, ctrl, toast, ending: forced, view: "ending", story: g.story });
+      return;
+    }
+
+    if (choice.combat) {
+      const fight = FIGHTS[choice.combat];
+      persist({ loop: g.loop, memories, visited: g.visited, people });
+      set({ memories, people, oath, ctrl, toast, fight, view: "combat", story: g.story });
+      return;
+    }
+
+    if (choice.map) {
+      persist({ loop: g.loop, memories, visited: g.visited, people });
+      set({ memories, people, oath, ctrl, toast, view: "map", story: g.story });
+      return;
+    }
+
+    if (choice.next && BEATS[choice.next]) {
+      persist({ loop: g.loop, memories, visited: g.visited, people });
       set({
         memories,
+        people,
         oath,
         ctrl,
-        toast: sit ? "Oath +18 · table kept" : "Control +18 · prompt accepted",
-        story: {
-          who: sit ? "Lord Heartgrim" : "SYSTEM",
-          sys: !sit,
-          portrait: sit ? "/art/heartgrim.jpg" : "/art/azrael.jpg",
-          text: sit
-            ? "Harmony was an oath. The System is a lock. You inherit the duty. Not the love. She had a name. Sssilvara. The Azure Fields still keep a regulation."
-            : "Departure licensed pending Empress review. Class confirmed. Emotion flagged as noise. The Azure Fields still keep a regulation.",
-          choices: [{ tag: "Engage", label: "Step into the grass.", id: "fields-go", auto: true }],
-        },
+        toast,
+        beatId: choice.next,
+        story: withBeat(BEATS[choice.next], g.loop),
+        view: "scene",
       });
-      writeSave({ version: 1, loop: g.loop, memories });
-      return;
-    }
-    if (id === "fields-go") {
-      set({
-        story: {
-          who: "Endless Azure Fields",
-          portrait: "/art/elysara-fields.jpg",
-          text: "Centaurs watch from the ridge and do not come down. A wind-serpent writes itself across the cracked sky. Not evil. A regulation. Kima is body. Anima is soul. Dual Pulse is what the System most hates.",
-          choices: [{ tag: "Fight", label: "Open the wells.", id: "fight-start", auto: true }],
-        },
-      });
-      return;
-    }
-    if (id === "fight-start") {
-      set({ story: null, paused: false, toast: "Wells open" });
-      window.dispatchEvent(new CustomEvent("eden-cmd", { detail: { type: "arena", id: "elysara-fields" } }));
-      return;
-    }
-    if (id === "to-map") {
-      set({
-        paused: true,
-        story: {
-          who: "Eden",
-          portrait: "/art/world.jpg",
-          text: "Seven inhabited continents. Elysara, Xihuang, Nordheim, Tezcal, Abyssara, Vindraeth, Caelus Prime. Walk the world. The hour will wait.",
-          choices: [{ tag: "Map", label: "Open the world.", id: "open-map", auto: true }],
-        },
-      });
-      return;
-    }
-    if (id === "open-map") {
-      set({ story: null, paused: false });
-      window.dispatchEvent(new CustomEvent("eden-cmd", { detail: { type: "arena", id: "map" } }));
-      return;
-    }
-    if (id.startsWith("enter-")) {
-      const cid = id.slice(6) as Exclude<ContinentId, "map">;
-      const c = CONTINENTS.find((x) => x.id === cid);
-      if (!c) return;
-      set({
-        story: {
-          who: `${c.name} · Act ${c.act}`,
-          portrait: c.portrait,
-          text: `${c.title}. ${c.line} ${c.talk}`,
-          choices: [{ tag: "Enter", label: `Walk ${c.arena}.`, id: `land-${cid}`, auto: true }],
-        },
-      });
-      return;
-    }
-    if (id.startsWith("land-")) {
-      const cid = id.slice(5);
-      set({ story: null, paused: false });
-      window.dispatchEvent(new CustomEvent("eden-cmd", { detail: { type: "arena", id: cid } }));
-      return;
-    }
-    if (id.startsWith("door-")) {
-      const ending = pickEnding(g.oath, g.ctrl);
-      const forced = (id.slice(5) as EndingId) || ending;
-      set({ ending: forced, paused: true });
-      return;
-    }
-    if (id === "hour-reset") {
-      get().bumpLoop();
-      get().startPlay(g.auto);
-      window.dispatchEvent(new CustomEvent("eden-cmd", { detail: { type: "reset" } }));
     }
   },
 
-  tickMeters: (oath, ctrl, why) => {
+  enterContinent: (id) => {
+    const g = get();
+    if (id === "caelus") {
+      const others = g.visited.filter((v) => v !== "elysara" && v !== "caelus");
+      if (others.length < 2 && !g.auto) {
+        set({ toast: "The Hour waits until two continents have been walked." });
+        return;
+      }
+    }
+    const beatId = CONTINENT_BEAT[id];
+    const beat = BEATS[beatId];
+    if (!beat) return;
+    const visited = g.visited.includes(id) ? g.visited : [...g.visited, id];
+    const c = CONTINENTS.find((x) => x.id === id);
+    persist({ loop: g.loop, memories: g.memories, visited, people: g.people });
+    sfx.click();
     set({
-      oath: clamp(get().oath + oath),
-      ctrl: clamp(get().ctrl + ctrl),
-      toast: why ?? null,
+      visited,
+      beatId,
+      story: withBeat(beat, g.loop),
+      view: "scene",
+      toast: c ? `Act ${c.act} · ${c.name}` : null,
     });
   },
 
-  remember: (key, value = true) => {
-    const memories = { ...get().memories, [key]: value };
-    set({ memories });
-    writeSave({ version: 1, loop: get().loop, memories });
+  finishCombat: (won) => {
+    const g = get();
+    const fight = g.fight;
+    if (!fight) {
+      set({ view: "scene" });
+      return;
+    }
+    if (won) {
+      sfx.win();
+      const memories = { ...g.memories, [`cleared:${fight.id}`]: true };
+      const next = BEATS[fight.next];
+      persist({ loop: g.loop, memories, visited: g.visited, people: g.people });
+      set({
+        memories,
+        fight: null,
+        view: "scene",
+        beatId: fight.next,
+        story: next ? withBeat(next, g.loop) : g.story,
+        toast: `${fight.foeName} held`,
+        oath: clamp(g.oath + 8),
+        ctrl: clamp(g.ctrl + 2),
+      });
+    } else {
+      sfx.hurt();
+      set({
+        toast: "The hour caught you. Wells reopen.",
+        ctrl: clamp(g.ctrl + 4),
+      });
+    }
   },
 
-  persist: () => {
-    const s = get();
-    writeSave({ version: 1, loop: s.loop, memories: s.memories });
+  openCodex: () => set({ view: "codex" }),
+  openMap: () => {
+    if (get().mode === "title") get().startPlay(false);
+    set({ view: "map" });
   },
-
-  bumpLoop: () => {
-    const loop = get().loop + 1;
-    const memories = { ...get().memories, loopCount: loop };
-    set({ loop, memories, ending: null });
-    writeSave({ version: 1, loop, memories });
+  closeOverlay: () => {
+    const g = get();
+    if (g.ending) set({ view: "ending" });
+    else if (g.fight) set({ view: "combat" });
+    else set({ view: "scene" });
   },
-
-  setToast: (toast) => set({ toast }),
-  setHud: (h) => set({ hud: { ...get().hud, ...h } }),
-  setEnding: (ending) => set({ ending, paused: !!ending }),
-  setPaused: (paused) => set({ paused }),
-  toTitle: () => set({ mode: "title", auto: false, story: null, ending: null, paused: false }),
+  toTitle: () => set({ mode: "title", auto: false, view: "scene", story: null, fight: null, ending: null }),
   wipe: () => {
     clearSave();
-    set({ loop: 1, memories: {}, toast: "Hour memory cleared" });
+    set({ loop: 1, memories: {}, visited: [], people: ["azrael"], toast: "Hour memory cleared" });
   },
+  toggleMute: () => set({ muted: !get().muted }),
 }));
+
+export function suggestedDoor(oath: number, ctrl: number): EndingId {
+  return pickEnding(oath, ctrl);
+}

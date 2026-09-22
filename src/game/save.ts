@@ -1,19 +1,23 @@
 import type { SaveBlob } from "./types";
 
-const KEY = "aetherion.eden.v1";
-const SAVE_VERSION = 1;
+const KEY = "aetherion.eden.v2";
+const SAVE_VERSION = 2;
 
-const defaults: SaveBlob = { version: SAVE_VERSION, loop: 1, memories: {} };
+const defaults: SaveBlob = { version: SAVE_VERSION, loop: 1, memories: {}, visited: [], people: ["azrael"] };
 
 function migrate(raw: SaveBlob): SaveBlob {
-  const s = { ...defaults, ...raw };
-  if (!s.version || s.version < 1) s.version = 1;
-  return { ...s, version: SAVE_VERSION, memories: { ...s.memories } };
+  return {
+    version: SAVE_VERSION,
+    loop: raw.loop ?? 1,
+    memories: { ...(raw.memories ?? {}) },
+    visited: Array.isArray(raw.visited) ? raw.visited : [],
+    people: Array.isArray(raw.people) && raw.people.length ? raw.people : ["azrael"],
+  };
 }
 
 export function loadSave(): SaveBlob {
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = localStorage.getItem(KEY) ?? localStorage.getItem("aetherion.eden.v1");
     if (!raw) return structuredClone(defaults);
     return migrate(JSON.parse(raw) as SaveBlob);
   } catch {
@@ -32,6 +36,7 @@ export function writeSave(save: SaveBlob) {
 export function clearSave() {
   try {
     localStorage.removeItem(KEY);
+    localStorage.removeItem("aetherion.eden.v1");
   } catch {
     /* ignore */
   }
