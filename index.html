@@ -310,7 +310,14 @@ h2{font-size:clamp(1.5rem,1.1rem + 1.6vw,2.2rem);font-weight:800}
 
   function clamp(n){ return Math.max(0, Math.min(100, n)); }
   function withBeat(beat){ return Object.assign({}, beat, { text: S.loop>1 && beat.alt ? beat.alt : beat.text }); }
-  function esc(s){ return String(s).replace(/[&<>"']/g, c => ({"&":"&","<":"<",">":">","\"":""","'":"&#39;"}[c])); }
+  function esc(s){
+    return String(s)
+      .replace(/&/g, "&"+"amp;")
+      .replace(/</g, "&"+"lt;")
+      .replace(/>/g, "&"+"gt;")
+      .replace(/"/g, "&"+"quot;")
+      .replace(/'/g, "&#"+"39;");
+  }
   function meter(label, value, kind){
     return `<div class="meter"><label><span>${esc(label)}</span><span>${Math.round(value)}</span></label><div class="bar ${kind}"><i style="width:${Math.max(0,Math.min(100,value))}%"></i></div></div>`;
   }
