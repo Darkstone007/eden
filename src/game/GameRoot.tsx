@@ -13,6 +13,16 @@ const SCENE_LOOP: Record<string, string> = {
   "after-heartgrim": "/video/loop-echoes.mp4",
   fields: "/video/loop-serpent.mp4",
   "after-serpent": "/video/loop-pulse.mp4",
+  xihuang: "/video/loop-world.mp4",
+  "xihuang-after": "/video/loop-world.mp4",
+  nordheim: "/video/loop-world.mp4",
+  "nordheim-after": "/video/loop-world.mp4",
+  tezcal: "/video/loop-pulse.mp4",
+  "tezcal-after": "/video/loop-pulse.mp4",
+  abyssara: "/video/loop-world.mp4",
+  "abyssara-after": "/video/loop-world.mp4",
+  vindraeth: "/video/loop-heartgrim.mp4",
+  "vindraeth-after": "/video/loop-heartgrim.mp4",
   caelus: "/video/loop-world.mp4",
   doors: "/video/loop-world.mp4",
 };
@@ -69,8 +79,9 @@ function TitleScreen() {
       />
       <div className="absolute inset-0 bg-gradient-to-t from-void via-void/55 to-void/20" />
       <div className="lattice pointer-events-none absolute inset-0" />
+      <div className="flow-motes pointer-events-none absolute inset-0" />
       <div className="relative z-10 px-5 pb-10 pt-16 sm:px-10 sm:pb-14">
-        <p className="text-xs uppercase tracking-kicker text-anima enter">Circuit Ink · Eden · seven continents</p>
+        <p className="text-xs uppercase tracking-kicker text-anima enter">Circuit Ink · indigo · brass · parchment · Dual Flow</p>
         <h1 className="mt-3 max-w-[14ch] font-display text-3xl font-extrabold text-paper enter">Aetherion</h1>
         <p className="mt-4 max-w-[46ch] text-mute enter-delay">
           A god was murdered. Eden stopped trusting oaths and installed a System. Azrael Raven inherits a broken Dual
@@ -163,12 +174,13 @@ function SceneStage({ story }: { story: StoryBeat }) {
       )}
       <div className="absolute inset-0 bg-gradient-to-t from-void via-void/40 to-void/30" />
       <div className="lattice pointer-events-none absolute inset-0" />
+      <div className="flow-motes pointer-events-none absolute inset-0" />
       {story.portrait ? (
         <img
           src={story.portrait}
           alt=""
           crossOrigin="anonymous"
-          className="breathe pointer-events-none absolute bottom-36 right-0 hidden h-[72%] max-w-[46%] object-contain object-bottom sm:block"
+          className={`breathe pointer-events-none absolute bottom-36 right-0 hidden h-[72%] max-w-[46%] object-contain object-bottom sm:block ${story.portrait.includes("azrael") ? "well-glow" : ""}`}
         />
       ) : null}
       <PlayChrome />
@@ -286,6 +298,8 @@ function MapStage() {
       <div className="ken absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url(/art/world.jpg)" }} />
       <video className="absolute inset-0 h-full w-full object-cover opacity-80" src="/video/loop-world.mp4" autoPlay muted loop playsInline />
       <div className="absolute inset-0 bg-gradient-to-t from-void via-void/55 to-void/40" />
+      <div className="lattice pointer-events-none absolute inset-0" />
+      <div className="flow-motes pointer-events-none absolute inset-0" />
       <PlayChrome />
       <div className="relative z-10 flex min-h-dvh flex-col justify-end px-4 pb-5 pt-28 sm:px-8">
         <p className="text-xs uppercase tracking-kicker text-anima">Eden · seven inhabited continents</p>
@@ -404,6 +418,8 @@ function EndingCard() {
     <div className="relative min-h-dvh overflow-hidden bg-void">
       <div className="ken absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${e.bg})` }} />
       <div className="absolute inset-0 bg-gradient-to-t from-void via-void/70 to-void/40" />
+      <div className="lattice pointer-events-none absolute inset-0" />
+      <div className="flow-motes pointer-events-none absolute inset-0" />
       <div className="relative z-10 flex min-h-dvh flex-col justify-end px-5 py-10 sm:px-10">
         <p className="text-xs uppercase tracking-kicker text-kima">Fracture Hour · {loop}</p>
         <h2 className="mt-2 font-display text-2xl text-paper sm:text-3xl">{e.name}</h2>

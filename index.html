@@ -16,7 +16,9 @@
 <style>
 :root{
   --void:#05060A;--ink:#0B0D14;--raised:#141824;--paper:#E8EEF6;--mute:#8A93A6;
-  --anima:#00E8D5;--kima:#FF2E78;--line:color-mix(in oklab,#00E8D5 28%,transparent);
+  --anima:#00E8D5;--kima:#FF2E78;--indigo:#2B3A67;--bronze:#C4A574;--sapphire:#3D6BAA;
+  --jade:#3D8B7A;--ember:#E07A3D;--gold:#D4AF37;--leather:#6E4B32;--parchment:#D8C9A8;
+  --line:color-mix(in oklab,#00E8D5 28%,transparent);
   --line-kima:color-mix(in oklab,#FF2E78 42%,transparent);
   --display:"Syne","Segoe UI",system-ui,sans-serif;
   --sans:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
@@ -31,10 +33,18 @@ h1,h2,h3{font-family:var(--display);letter-spacing:-.03em;line-height:1.12;margi
 .bleed{position:absolute;inset:0;background-size:cover;background-position:center 28%;transform:scale(1.06);animation:ken 22s ease-in-out alternate infinite}
 video.bleed{width:100%;height:100%;object-fit:cover;transform:none;animation:none}
 .veil{position:absolute;inset:0;background:linear-gradient(to top,var(--void),rgba(5,6,10,.45) 42%,rgba(5,6,10,.28))}
-.lattice{position:absolute;inset:0;pointer-events:none;opacity:.55;mix-blend-mode:screen;
+.lattice{position:absolute;inset:0;pointer-events:none;opacity:.6;mix-blend-mode:screen;animation:lattice-drift 28s linear infinite;
   background-image:radial-gradient(circle at 18% 18%,color-mix(in oklab,var(--anima) 22%,transparent),transparent 26%),
-  radial-gradient(circle at 84% 12%,color-mix(in oklab,var(--kima) 14%,transparent),transparent 22%),
-  repeating-linear-gradient(90deg,transparent 0 72px,color-mix(in oklab,var(--anima) 5%,transparent) 72px 73px)}
+  radial-gradient(circle at 84% 12%,color-mix(in oklab,var(--kima) 16%,transparent),transparent 22%),
+  radial-gradient(circle at 50% 90%,color-mix(in oklab,var(--sapphire) 18%,transparent),transparent 30%),
+  radial-gradient(circle at 72% 48%,color-mix(in oklab,var(--gold) 14%,transparent),transparent 24%),
+  radial-gradient(circle at 8% 62%,color-mix(in oklab,var(--indigo) 30%,transparent),transparent 34%),
+  repeating-linear-gradient(90deg,transparent 0 72px,color-mix(in oklab,var(--bronze) 8%,transparent) 72px 73px)}
+.flow-motes{position:absolute;inset:0;pointer-events:none;opacity:.55;mix-blend-mode:screen;animation:motes 22s linear infinite;
+  background-image:radial-gradient(2px 2px at 18% 28%,var(--anima),transparent),radial-gradient(2px 2px at 82% 18%,var(--kima),transparent),
+  radial-gradient(1.5px 1.5px at 46% 72%,var(--gold),transparent),radial-gradient(2px 2px at 68% 84%,var(--sapphire),transparent)}
+@keyframes lattice-drift{from{background-position:0 0,0 0,0 0,0 0,0 0,0 0}to{background-position:120px 0,-80px 0,0 -40px,60px 20px,-40px 30px,72px 0}}
+@keyframes motes{from{background-position:0 0,0 0,0 0,0 0}to{background-position:48px -160px,-36px 110px,24px -80px,-60px 48px}}
 @keyframes ken{from{transform:scale(1.04) translate3d(-1%,0,0)}to{transform:scale(1.12) translate3d(1.4%,.6%,0)}}
 .kick{font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--anima)}
 .mute{color:var(--mute)}
@@ -111,11 +121,11 @@ h2{font-size:clamp(1.5rem,1.1rem + 1.6vw,2.2rem);font-weight:800}
 
   const PEOPLE = [
     { id:"azrael", name:"Azrael Raven", title:"Seeker of Echoes", image:ART("azrael.jpg"), line:"Village Seeker. Torn indigo sash. The Resonance Well in his left palm was not a gift." },
-    { id:"heartgrim", name:"Lord Heartgrim", title:"The Grimpling", image:ART("heartgrim.jpg"), line:"Harmony was an oath. The System is a lock." },
+    { id:"heartgrim", name:"Lord Heartgrim", title:"The Grimpling", image:ART("heartgrim.jpg"), line:"Indigo robes. Naga-coil ponytail. Journals at the hip. Scarred hands. The Dual Flow sapphire is already broken." },
     { id:"aeyra", name:"Empress Aeyra Valonyr", title:"Stormcrown", image:ART("aeyra.jpg"), line:"Licenses the leaving. Chivalry as weather-control." },
     { id:"sssilvara", name:"Sssilvara Coil-Whisperer", title:"Naga Princess", image:ART("sssilvara.jpg"), line:"Heartgrim’s beloved. Azrael inherits the duty, not the love." },
     { id:"kaisetsu", name:"Kaisetsu of the Thousand Palms", title:"Unbreakable Palm", image:ART("kaisetsu.jpg"), line:"Rebuilt Isychros. One strike. Tea as law." },
-    { id:"durak", name:"Durak Ironvein", title:"Starforge", image:ART("durak.jpg"), line:"He measured twice. The world still broke." },
+    { id:"durak", name:"Durak Ironvein", title:"Starforge", image:ART("durak.jpg"), line:"Fiery beard in iron rings. He forged the amulet core. He measured twice. The world still broke." },
     { id:"xalthok", name:"Xal’thok", title:"The Betrayer", image:ART("xalthok.jpg"), line:"Invited advisor. Mortal hand of the Fracture." },
     { id:"thorne", name:"Thorne Voidwarden", title:"End’s Shadow", image:ART("thorne.jpg"), line:"No throne. Grief as profession." },
     { id:"silas", name:"Aeon Keeper Silas", title:"The Hour", image:ART("silas.jpg"), line:"Already holds both names in a loop." },
@@ -164,7 +174,7 @@ h2{font-size:clamp(1.5rem,1.1rem + 1.6vw,2.2rem);font-weight:800}
         { id:"path-crucible", tag:"Crucible", label:"Grief that still has a name. Something in the hour ignited.", auto:true }
       ]},
     classed: { id:"classed", act:"0", place:"Resonance Well", who:"SYSTEM", sys:true, bg:ART("azrael.jpg"), portrait:ART("azrael.jpg"),
-      text:"Class written. Resonance Well marked on the wrist. Overflow possible. Sanity is a resource. Walk the spire. Sit with the hunched man on the guild steps — or file the prompt.",
+      text:"Class written. Resonance Well marked in the left palm. Overflow possible. Sanity is a resource. Walk the spire. Sit with the hunched man on the guild steps — or file the prompt.",
       choices:[{ id:"to-heartgrim", tag:"Walk", label:"The hunched immortal is already looking at the shard.", auto:true, next:"heartgrim", person:"heartgrim" }]},
     heartgrim: { id:"heartgrim", act:"I", place:"Guild Steps", who:"Lord Heartgrim", bg:ART("heartgrim.jpg"), portrait:ART("heartgrim.jpg"),
       text:"Harmony was an oath. The System is a lock. That shard is a Dual Flow core I forged with Durak. You inherit the duty. Not the love. She had a name. Sssilvara.",
@@ -489,9 +499,9 @@ h2{font-size:clamp(1.5rem,1.1rem + 1.6vw,2.2rem);font-weight:800}
   function titleHTML(){
     return `<div class="screen">
       <video class="bleed" src="${VID("trailer.mp4")}" poster="${VID("poster.jpg")}" autoplay muted loop playsinline></video>
-      <div class="veil"></div><div class="lattice"></div>
+      <div class="veil"></div><div class="lattice"></div><div class="flow-motes"></div>
       <div class="pad" style="position:absolute;inset:auto 0 0;z-index:10;padding:64px 20px 40px;max-width:none">
-        <p class="kick">Circuit Ink · Eden · seven continents</p>
+        <p class="kick">Circuit Ink · indigo · brass · parchment · Dual Flow</p>
         <h1>Aetherion</h1>
         <p class="mute" style="max-width:46ch;margin-top:16px">A god was murdered. Eden stopped trusting oaths and installed a System. Azrael Raven inherits a broken Dual Flow amulet and a Well in the left palm. Walk the hour. Keep a table, or file the form.</p>
         <div class="row">
@@ -512,7 +522,7 @@ h2{font-size:clamp(1.5rem,1.1rem + 1.6vw,2.2rem);font-weight:800}
     const caret = S.typed < st.text.length ? `<span class="caret">▌</span>` : "";
     return `<div class="screen">
       <div class="bleed" style="background-image:url('${st.bg}')"></div>
-      <div class="veil"></div><div class="lattice"></div>
+      <div class="veil"></div><div class="lattice"></div><div class="flow-motes"></div>
       ${st.portrait?`<img class="portrait" src="${st.portrait}" alt="" />`:""}
       ${chrome()}
       <div class="pad bottom"><div class="inner">
@@ -585,7 +595,7 @@ h2{font-size:clamp(1.5rem,1.1rem + 1.6vw,2.2rem);font-weight:800}
     const f = S.fight; if (!f) return "";
     return `<div class="screen" id="cstage">
       <div class="bleed" style="background-image:url('${f.bg}')"></div>
-      <div class="veil"></div><div class="lattice"></div>
+      <div class="veil"></div><div class="lattice"></div><div class="flow-motes"></div>
       <div style="position:relative;z-index:10;min-height:100dvh;display:flex;flex-direction:column;justify-content:space-between;padding:16px 16px 20px">
         <div style="display:flex;justify-content:space-between;gap:16px">
           <div><p class="kick">${esc(f.subtitle)}</p><h2 style="margin-top:4px">${esc(f.name)}</h2></div>

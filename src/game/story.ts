@@ -29,7 +29,7 @@ export const BEATS: Record<string, StoryBeat> = {
     sys: true,
     bg: "/art/azrael.jpg",
     portrait: "/art/azrael.png",
-    text: "Class written. Resonance Well marked on the wrist. Overflow possible. Sanity is a resource. Walk the spire. Sit with the hunched man on the guild steps — or file the prompt.",
+    text: "Class written. Resonance Well marked in the left palm. Overflow possible. Sanity is a resource. Walk the spire. Sit with the hunched man on the guild steps — or file the prompt.",
     choices: [
       {
         id: "to-heartgrim",

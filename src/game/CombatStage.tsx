@@ -176,24 +176,24 @@ export function CombatStage({ fight }: { fight: FightDef }) {
     <div className="relative min-h-dvh overflow-hidden bg-void text-paper">
       <video
         className="absolute inset-0 h-full w-full object-cover"
-        src={fight.id === "serpent" ? "/video/loop-serpent.mp4" : undefined}
+        src={fight.id === "serpent" ? "/video/loop-serpent.mp4" : "/video/loop-pulse.mp4"}
         poster={fight.bg}
         autoPlay
         muted
         loop
         playsInline
-        style={{ display: fight.id === "serpent" ? "block" : "none" }}
       />
       <div
-        className="ken absolute inset-0 bg-cover bg-center"
+        className="ken absolute inset-0 bg-cover bg-center mix-blend-luminosity opacity-35"
         style={{
           backgroundImage: `url(${fight.bg})`,
-          display: fight.id === "serpent" ? "none" : undefined,
           transform: shake ? `translateX(${((Math.random() - 0.5) * shake).toFixed(2)}px)` : undefined,
         }}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-void via-void/35 to-void/40" />
       <div className="lattice pointer-events-none absolute inset-0" />
+      <div className="flow-motes pointer-events-none absolute inset-0" />
+      {flash === "dual" ? <div className="dual-flash absolute inset-0" /> : null}
 
       <div className="relative z-10 flex min-h-dvh flex-col justify-between px-4 py-4 sm:px-8 sm:py-6">
         <div className="flex items-start justify-between gap-4">

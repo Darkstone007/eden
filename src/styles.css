@@ -14,6 +14,8 @@
   --color-jade: #3d8b7a;
   --color-ember: #e07a3d;
   --color-gold: #d4af37;
+  --color-leather: #6e4b32;
+  --color-parchment: #d8c9a8;
   --color-chrome: #c5d0dc;
   --color-line: color-mix(in oklab, #00e8d5 28%, transparent);
   --color-line-kima: color-mix(in oklab, #ff2e78 42%, transparent);
@@ -118,23 +120,74 @@
     radial-gradient(circle at 18% 18%, color-mix(in oklab, var(--color-anima) 22%, transparent), transparent 26%),
     radial-gradient(circle at 84% 12%, color-mix(in oklab, var(--color-kima) 16%, transparent), transparent 22%),
     radial-gradient(circle at 50% 90%, color-mix(in oklab, var(--color-sapphire) 18%, transparent), transparent 30%),
+    radial-gradient(circle at 72% 48%, color-mix(in oklab, var(--color-gold) 14%, transparent), transparent 24%),
+    radial-gradient(circle at 8% 62%, color-mix(in oklab, var(--color-indigo) 30%, transparent), transparent 34%),
+    radial-gradient(circle at 92% 78%, color-mix(in oklab, var(--color-bronze) 16%, transparent), transparent 22%),
     repeating-linear-gradient(
       90deg,
       transparent 0 72px,
-      color-mix(in oklab, var(--color-anima) 5%, transparent) 72px 73px
+      color-mix(in oklab, var(--color-bronze) 8%, transparent) 72px 73px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0 96px,
+      color-mix(in oklab, var(--color-gold) 6%, transparent) 96px 97px
     );
   mix-blend-mode: screen;
-  opacity: 0.55;
+  opacity: 0.6;
   pointer-events: none;
   animation: lattice-drift 28s linear infinite;
 }
 
 @keyframes lattice-drift {
   from {
-    background-position: 0 0, 0 0, 0 0, 0 0;
+    background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
   }
   to {
-    background-position: 120px 0, -80px 0, 0 -40px, 72px 0;
+    background-position: 120px 0, -80px 0, 0 -40px, 60px 20px, -40px 30px, 30px -20px, 72px 0, 0 96px;
+  }
+}
+
+.flow-motes {
+  background-image:
+    radial-gradient(2px 2px at 18% 28%, var(--color-anima), transparent),
+    radial-gradient(2px 2px at 82% 18%, var(--color-kima), transparent),
+    radial-gradient(1.5px 1.5px at 46% 72%, var(--color-gold), transparent),
+    radial-gradient(2px 2px at 68% 84%, var(--color-sapphire), transparent),
+    radial-gradient(1.5px 1.5px at 12% 88%, var(--color-bronze), transparent),
+    radial-gradient(1px 1px at 90% 42%, var(--color-parchment), transparent);
+  mix-blend-mode: screen;
+  opacity: 0.55;
+  pointer-events: none;
+  animation: motes 22s linear infinite;
+}
+
+@keyframes motes {
+  from {
+    background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
+  }
+  to {
+    background-position: 48px -160px, -36px 110px, 24px -80px, -60px 48px, 16px -120px, 40px 70px;
+  }
+}
+
+.dual-flash {
+  background: linear-gradient(
+    90deg,
+    color-mix(in oklab, var(--color-kima) 38%, transparent),
+    color-mix(in oklab, var(--color-gold) 10%, transparent),
+    color-mix(in oklab, var(--color-anima) 38%, transparent)
+  );
+  animation: dualflash 240ms ease-out both;
+  pointer-events: none;
+}
+
+@keyframes dualflash {
+  from {
+    opacity: 0.85;
+  }
+  to {
+    opacity: 0;
   }
 }
 
@@ -169,7 +222,9 @@
 
   .ken,
   .breathe,
-  .lattice {
+  .lattice,
+  .flow-motes,
+  .dual-flash {
     animation: none;
     transform: none;
   }

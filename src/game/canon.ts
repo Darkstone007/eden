@@ -11,6 +11,8 @@ export const PALETTE = {
   jade: "#3D8B7A",
   ember: "#E07A3D",
   gold: "#D4AF37",
+  leather: "#6E4B32",
+  parchment: "#D8C9A8",
   mute: "#8A93A6",
 } as const;
 
@@ -35,7 +37,7 @@ export const PEOPLE: Person[] = [
     name: "Lord Heartgrim",
     title: "The Grimpling",
     image: "/art/heartgrim.jpg",
-    line: "Harmony was an oath. The System is a lock.",
+    line: "Indigo robes. Naga-coil ponytail. Journals at the hip. Scarred hands. The Dual Flow sapphire is already broken.",
   },
   {
     id: "aeyra",
@@ -63,7 +65,7 @@ export const PEOPLE: Person[] = [
     name: "Durak Ironvein",
     title: "Starforge",
     image: "/art/durak.jpg",
-    line: "He measured twice. The world still broke.",
+    line: "Fiery beard in iron rings. He forged the amulet core. He measured twice. The world still broke.",
   },
   {
     id: "xalthok",
@@ -165,7 +167,7 @@ export const CONTINENTS: Continent[] = [
     act: "V",
     title: "Tides",
     bg: "/art/abyssara-depthcall.jpg",
-    portrait: "/art/aeyra.jpg",
+    portrait: "/art/abyssara-depthcall.jpg",
     line: "The sea as a second sky. False moon-portals are Betrayer traps.",
     x: 0.2,
     y: 0.4,
