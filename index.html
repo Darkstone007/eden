@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="theme-color" content="#05060A" />
+<title>Aetherion · Eden</title>
+<meta name="description" content="Playable Aetherion demo on the world of Eden. Walk the hour. Keep a table or file the form." />
+<meta property="og:title" content="Aetherion · Eden" />
+<meta property="og:description" content="A god was murdered. Eden installed a System. Dual Flow combat on seven continents." />
+<meta property="og:image" content="public/og.jpg" />
+<link rel="icon" href="public/favicon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --void:#05060A;--ink:#0B0D14;--raised:#141824;--paper:#E8EEF6;--mute:#8A93A6;
+  --anima:#00E8D5;--kima:#FF2E78;--line:color-mix(in oklab,#00E8D5 28%,transparent);
+  --line-kima:color-mix(in oklab,#FF2E78 42%,transparent);
+  --display:"Syne","Segoe UI",system-ui,sans-serif;
+  --sans:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--void);color:var(--paper);font-family:var(--sans);line-height:1.55;-webkit-font-smoothing:antialiased}
+button,a.btn{font:inherit;cursor:pointer}
+button:disabled{cursor:not-allowed;opacity:.4}
+h1,h2,h3{font-family:var(--display);letter-spacing:-.03em;line-height:1.12;margin:0;text-wrap:balance}
+#app{min-height:100dvh}
+.screen{position:relative;min-height:100dvh;overflow:hidden;background:var(--void)}
+.bleed{position:absolute;inset:0;background-size:cover;background-position:center 28%;transform:scale(1.06);animation:ken 22s ease-in-out alternate infinite}
+video.bleed{width:100%;height:100%;object-fit:cover;transform:none;animation:none}
+.veil{position:absolute;inset:0;background:linear-gradient(to top,var(--void),rgba(5,6,10,.45) 42%,rgba(5,6,10,.28))}
+.lattice{position:absolute;inset:0;pointer-events:none;opacity:.55;mix-blend-mode:screen;
+  background-image:radial-gradient(circle at 18% 18%,color-mix(in oklab,var(--anima) 22%,transparent),transparent 26%),
+  radial-gradient(circle at 84% 12%,color-mix(in oklab,var(--kima) 14%,transparent),transparent 22%),
+  repeating-linear-gradient(90deg,transparent 0 72px,color-mix(in oklab,var(--anima) 5%,transparent) 72px 73px)}
+@keyframes ken{from{transform:scale(1.04) translate3d(-1%,0,0)}to{transform:scale(1.12) translate3d(1.4%,.6%,0)}}
+.kick{font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--anima)}
+.mute{color:var(--mute)}
+.kima{color:var(--kima)}
+.paper{color:var(--paper)}
+.pad{position:relative;z-index:2;padding:24px 20px 40px;max-width:920px}
+.pad.bottom{position:absolute;inset:auto 0 0 0;z-index:20;padding:64px 20px 28px;background:linear-gradient(to top,var(--void) 62%,transparent);max-width:none}
+.pad.bottom .inner{max-width:720px;margin:0 auto}
+h1{font-size:clamp(2.4rem,1.3rem + 3.6vw,4.6rem);font-weight:800}
+h2{font-size:clamp(1.5rem,1.1rem + 1.6vw,2.2rem);font-weight:800}
+.row{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 20px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--paper);text-decoration:none}
+.btn.primary{background:var(--paper);color:var(--void);border-color:var(--paper);font-family:var(--display);font-weight:700}
+.btn.ghost{color:var(--mute)}
+.choice{display:block;width:100%;text-align:left;min-height:44px;padding:10px 14px;border-radius:8px;border:1px solid var(--line);background:rgba(5,6,10,.7);color:var(--paper);margin:0}
+.choice .tag{display:inline-block;margin-right:8px;font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--anima)}
+.choices{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+.chrome{pointer-events:none;position:absolute;inset:0 0 auto;z-index:30;display:flex;justify-content:space-between;gap:12px;padding:16px}
+.chrome .tools{pointer-events:auto;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px}
+.chrome .tools .btn{min-height:44px;padding:8px 12px;font-size:12px;color:var(--mute)}
+.meters{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:208px;margin-top:12px}
+.meter label{display:flex;justify-content:space-between;font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--mute)}
+.bar{height:6px;border-radius:99px;background:var(--raised);overflow:hidden;margin-top:4px}
+.bar>i{display:block;height:100%;border-radius:99px}
+.bar.anima>i{background:var(--anima)}
+.bar.kima>i{background:var(--kima)}
+.bar.paper>i{background:var(--paper)}
+.portrait{pointer-events:none;position:absolute;bottom:140px;right:0;height:72%;max-width:46%;object-fit:contain;object-position:bottom;display:none}
+@media(min-width:640px){.portrait{display:block}.pad,.pad.bottom{padding-left:40px;padding-right:40px}}
+.grid7{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:20px}
+@media(min-width:640px){.grid7{grid-template-columns:repeat(4,1fr)}}
+@media(min-width:1100px){.grid7{grid-template-columns:repeat(7,1fr)}}
+.card{overflow:hidden;border:1px solid var(--line);border-radius:8px;background:rgba(5,6,10,.7);color:var(--paper);text-align:left;padding:0}
+.card img{width:100%;height:88px;object-fit:cover;display:block}
+.card .b{padding:8px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:99px;background:var(--kima)}
+.dot.done{background:var(--anima)}
+.dot.lock{background:var(--mute)}
+.people{display:grid;gap:16px;margin-top:16px}
+@media(min-width:640px){.people{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1024px){.people{grid-template-columns:repeat(3,1fr)}}
+.person{overflow:hidden;border:1px solid var(--line);border-radius:12px;background:var(--ink)}
+.person img{width:100%;height:160px;object-fit:cover;object-position:top}
+.person .b{padding:16px}
+.codex{min-height:100dvh;overflow-y:auto;padding:32px 20px 64px;max-width:1040px;margin:0 auto}
+.fighters{display:flex;flex:1;align-items:flex-end;justify-content:space-between;gap:12px;padding:16px 0}
+.fighter{width:42%;max-width:320px}
+.fighter .frame{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:8px}
+.fighter img{width:100%;height:160px;object-fit:cover;object-position:top;display:block}
+@media(min-width:640px){.fighter img{height:256px}}
+.fighter .cap{position:absolute;inset:auto 0 0;padding:8px;background:linear-gradient(to top,var(--void),transparent)}
+.pulse{width:64px;height:64px;border-radius:99px;border:1px solid var(--line);display:grid;place-items:center;font-size:11px;letter-spacing:.26em;text-transform:uppercase}
+.pulse.tel-kima{border-color:var(--kima);background:var(--raised)}
+.pulse.tel-anima{border-color:var(--anima);background:var(--raised)}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(min-width:640px){.acts{grid-template-columns:repeat(4,1fr)}}
+.act{min-height:44px;text-align:left;padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:rgba(5,6,10,.6);color:var(--paper)}
+.act.kima{border-color:var(--line-kima);color:var(--kima)}
+.act.anima{color:var(--anima)}
+.act small{display:block;color:var(--mute);font-size:11px;letter-spacing:.2em;text-transform:uppercase}
+.panel{border:1px solid var(--line);border-radius:12px;background:rgba(5,6,10,.75);padding:12px}
+.flash{filter:brightness(1.6)}
+.caret{color:var(--anima)}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}.bleed{animation:none;transform:none}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+(function () {
+  const ART = (n) => "public/art/" + n;
+  const VID = (n) => "public/video/" + n;
+  const SAVE = "aetherion-eden-v2";
+
+  const PEOPLE = [
+    { id:"azrael", name:"Azrael Raven", title:"Seeker of Echoes", image:ART("azrael.jpg"), line:"Village Seeker. King-cut coat. The visor was not a gift." },
+    { id:"heartgrim", name:"Lord Heartgrim", title:"The Grimpling", image:ART("heartgrim.jpg"), line:"Harmony was an oath. The System is a lock." },
+    { id:"aeyra", name:"Empress Aeyra Valonyr", title:"Stormcrown", image:ART("aeyra.jpg"), line:"Licenses the leaving. Chivalry as weather-control." },
+    { id:"sssilvara", name:"Sssilvara Coil-Whisperer", title:"Naga Princess", image:ART("sssilvara.jpg"), line:"Heartgrim’s beloved. Azrael inherits the duty, not the love." },
+    { id:"kaisetsu", name:"Kaisetsu of the Thousand Palms", title:"Unbreakable Palm", image:ART("kaisetsu.jpg"), line:"Rebuilt Isychros. One strike. Tea as law." },
+    { id:"durak", name:"Durak Ironvein", title:"Starforge", image:ART("durak.jpg"), line:"He measured twice. The world still broke." },
+    { id:"xalthok", name:"Xal’thok", title:"The Betrayer", image:ART("xalthok.jpg"), line:"Invited advisor. Mortal hand of the Fracture." },
+    { id:"thorne", name:"Thorne Voidwarden", title:"End’s Shadow", image:ART("thorne.jpg"), line:"No throne. Grief as profession." },
+    { id:"silas", name:"Aeon Keeper Silas", title:"The Hour", image:ART("silas.jpg"), line:"Already holds both names in a loop." },
+    { id:"ryx", name:"Ryx Ronin", title:"The Seeker After", image:ART("ryx.jpg"), line:"Will crawl whatever Azrael leaves." },
+    { id:"aeltharion", name:"Aeltharion", title:"Celestial Sovereign", image:ART("aeltharion.jpg"), line:"Murdered. The sky became a warden." }
+  ];
+
+  const CONTINENTS = [
+    { id:"elysara", name:"Elysara", act:"I", bg:ART("elysara-echoes.jpg") },
+    { id:"xihuang", name:"Xihuang", act:"II", bg:ART("xihuang-isychros.jpg") },
+    { id:"nordheim", name:"Nordheim", act:"III", bg:ART("nordheim-ironhold.jpg") },
+    { id:"tezcal", name:"Tezcal", act:"IV", bg:ART("tezcal-krystallis.jpg") },
+    { id:"abyssara", name:"Abyssara", act:"V", bg:ART("abyssara-depthcall.jpg") },
+    { id:"vindraeth", name:"Vindraeth", act:"VI", bg:ART("vindraeth-wilds.jpg") },
+    { id:"caelus", name:"Caelus Prime", act:"VII", bg:ART("caelus-hub.jpg") }
+  ];
+
+  const PATHS = {
+    lapis: { cls:"ARCANUS", kima:28, anima:70, line:"Deceived trader. You bought a shard that was already listening." },
+    forged: { cls:"VIGOR", kima:70, anima:28, line:"Wandering academic. You trained until the mortal limit cracked." },
+    crucible: { cls:"AEQUALIS", kima:55, anima:55, line:"Grief that still has a name. The System restricts this hardest." }
+  };
+
+  const ENDINGS = {
+    mend: { name:"Mend the lattice", need:"Oath high. Shards united without a new tyrant.", body:"Dual Flow returns as a door, not a weapon. The System thins. Heartgrim can stop walking. Azrael does not take a throne — he keeps the city from needing one.", bg:ART("elysara.jpg") },
+    lock: { name:"The kinder cage", need:"Control high. Amulet used as a new lock.", body:"Azrael becomes the lock. Levels stay. Overflow dies. The world is safer and smaller. Aeyra approves. Heartgrim does not. Ryx will crawl a cage with a door-shaped scar.", bg:ART("caelus.jpg") },
+    walk: { name:"The Grimpling’s road", need:"Meters near even. Shards carried, not crowned.", body:"No mending, no new System. Azrael walks as Heartgrim walked: immortal duty, no crown, a broken circle in the palm. The lattice stays cracked. People live anyway.", bg:ART("caelus-meadows.jpg") },
+    shatter: { name:"Break the lock", need:"A meter extreme, plus smashing the amulet in Caelus.", body:"Oaths return. So does the old murder-math. Power grows without permission. So does betrayal. The Codex calls this ending honest, not kind.", bg:ART("vindraeth-spires.jpg") }
+  };
+
+  const FIGHTS = {
+    serpent: { id:"serpent", name:"Wind Serpent Construct", subtitle:"Endless Azure Fields · a regulation, not a villain", bg:ART("elysara-fields.jpg"), foe:ART("wind-serpent.jpg"), foeName:"Wind Serpent", resist:"kima", weak:"anima", hp:96, next:"after-serpent", hint:"It resists body. Thread the lattice with Anima. Dual Pulse if the wells fill." },
+    palm: { id:"palm", name:"Thousand Palms Trial", subtitle:"Isychros · Kaisetsu does not take a second blow", bg:ART("xihuang-isychros.jpg"), foe:ART("kaisetsu.jpg"), foeName:"Kaisetsu", resist:"kima", weak:"anima", hp:88, next:"xihuang-after", hint:"Honor duel. Read the ki — Anima finds the gap in the form." },
+    golem: { id:"golem", name:"Starforge Sentinel", subtitle:"Ironhold · name the construct or it names you", bg:ART("nordheim-ironhold.jpg"), foe:ART("nordheim.jpg"), foeName:"Vein Golem", resist:"anima", weak:"kima", hp:100, next:"nordheim-after", hint:"Anima slides off iron. Kima is the honest strike." },
+    smile: { id:"smile", name:"The Other Forge", subtitle:"Krystallis · a bargain with a receipt", bg:ART("tezcal-embercrag.jpg"), foe:ART("xalthok.jpg"), foeName:"Xal’thok", resist:"none", weak:"anima", hp:110, next:"tezcal-after", hint:"The smile is a wound. Dual Pulse is what he taught the world to fear." },
+    tide: { id:"tide", name:"False Moon Portal", subtitle:"Depthcall · Betrayer work using a borrowed name", bg:ART("abyssara-depthcall.jpg"), foe:ART("abyssara.jpg"), foeName:"Moon-Rift", resist:"kima", weak:"anima", hp:90, next:"abyssara-after", hint:"Tenebris is not a nineteenth god. Cut the fake moon with Anima." }
+  };
+
+  const BEATS = {
+    wake: { id:"wake", act:"0", place:"City of Echoes", who:"Fracture Hour", bg:ART("elysara-echoes.jpg"), portrait:ART("azrael.jpg"),
+      text:"Cold stone. A shard on a cord. A visor you did not ask for. The sky over Eden is a cracked white lattice. The System waits for a history before it will write a class.",
+      alt:"Cold stone. A shard on a cord. The visor already knows this stone. Somewhere in the lattice a later name waits: Ryx. Submit a history. Again.",
+      choices:[
+        { id:"path-lapis", tag:"Lapis", label:"Deceived trader. You bought a shard that was already listening.", remember:"azrael" },
+        { id:"path-forged", tag:"Forged", label:"Wandering academic. You trained until the mortal limit cracked." },
+        { id:"path-crucible", tag:"Crucible", label:"Grief that still has a name. Something in the hour ignited.", auto:true }
+      ]},
+    classed: { id:"classed", act:"0", place:"Resonance Well", who:"SYSTEM", sys:true, bg:ART("azrael.jpg"), portrait:ART("azrael.jpg"),
+      text:"Class written. Resonance Well marked on the wrist. Overflow possible. Sanity is a resource. Walk the spire. Sit with the hunched man on the guild steps — or file the prompt.",
+      choices:[{ id:"to-heartgrim", tag:"Walk", label:"The hunched immortal is already looking at the shard.", auto:true, next:"heartgrim", person:"heartgrim" }]},
+    heartgrim: { id:"heartgrim", act:"I", place:"Guild Steps", who:"Lord Heartgrim", bg:ART("heartgrim.jpg"), portrait:ART("heartgrim.jpg"),
+      text:"Harmony was an oath. The System is a lock. That shard is a Dual Flow core I forged with Durak. You inherit the duty. Not the love. She had a name. Sssilvara.",
+      alt:"You sit before he asks. He notices. The broken circle in his palm is warmer this hour.",
+      choices:[
+        { id:"heartgrim-sit", tag:"Oath", label:"Sit with him. Let him name the shard.", auto:true, oath:18, remember:"namedTheShard", next:"after-heartgrim", person:"sssilvara" },
+        { id:"heartgrim-form", tag:"Control", label:"Walk past. File the System form.", ctrl:18, next:"after-heartgrim" }
+      ]},
+    "after-heartgrim": { id:"after-heartgrim", act:"I", place:"City of Echoes", who:"Lord Heartgrim", bg:ART("elysara.jpg"), portrait:ART("heartgrim.jpg"),
+      text:"The Azure Fields still keep a regulation. Centaurs watch from the ridge and do not come down. Birdmen hold Cloudreach. The first pact is a table, or a form. You already chose.",
+      alt:"He does not repeat the name. He does not have to. The Fields still keep their regulation.",
+      choices:[{ id:"to-fields", tag:"Fields", label:"Step into the grass.", auto:true, next:"fields" }]},
+    fields: { id:"fields", act:"I", place:"Endless Azure Fields", who:"Azure Fields", bg:ART("elysara-fields.jpg"), portrait:ART("wind-serpent.jpg"),
+      text:"Centaurs on the ridge. A wind-serpent writes itself across the cracked sky. Not evil. A regulation. Kima is body. Anima is soul. Dual Pulse is what the System most hates. Open the wells.",
+      choices:[{ id:"fight-serpent", tag:"Fight", label:"Open the wells.", auto:true, combat:"serpent" }]},
+    "after-serpent": { id:"after-serpent", act:"I", place:"Endless Azure Fields", who:"Empress Aeyra Valonyr", bg:ART("aeyra.jpg"), portrait:ART("aeyra.jpg"),
+      text:"Departure licensed pending Empress review. Class confirmed. Emotion flagged as noise — she says it like weather. Seven inhabited continents. The hour will wait. So will the doors.",
+      choices:[{ id:"open-map", tag:"Eden", label:"Open the world.", auto:true, map:true, person:"aeyra", remember:"metAeyra", oath:4 }]},
+    xihuang: { id:"xihuang", act:"II", place:"Isychros Capital", who:"Sssilvara Coil-Whisperer", bg:ART("xihuang-jadevein.jpg"), portrait:ART("sssilvara.jpg"),
+      text:"Jadevein still holds her vision. A coil in the pool. She is Heartgrim’s slain beloved — not a second romance. Kaisetsu rebuilt this city after the Forge Wars. He will not take a second blow.",
+      alt:"The pool remembers you. She does not become yours. The duty still is not love.",
+      choices:[
+        { id:"xihuang-honor", tag:"Oath", label:"Keep the vision as succession. Take Kaisetsu’s trial.", auto:true, oath:12, combat:"palm", person:"kaisetsu" },
+        { id:"xihuang-use", tag:"Control", label:"Use the coil as a tool. File the dojo form.", ctrl:12, combat:"palm", person:"kaisetsu" }
+      ]},
+    "xihuang-after": { id:"xihuang-after", act:"II", place:"Isychros Capital", who:"Kaisetsu of the Thousand Palms", bg:ART("xihuang-isychros.jpg"), portrait:ART("kaisetsu.jpg"),
+      text:"Fighting is the palm conquering existence’s flow. Tea after. The pact sheds like a scale if you try to wear it. Return to the world when the hour thins.",
+      choices:[{ id:"map-x", tag:"Map", label:"Return to Eden.", auto:true, map:true }]},
+    nordheim: { id:"nordheim", act:"III", place:"Ironhold", who:"Durak Ironvein", bg:ART("nordheim-ironhold.jpg"), portrait:ART("durak.jpg"),
+      text:"He measured twice and the world still broke. The amulet’s core was forged here. A sentinel wakes when a Seeker carries a shard it remembers. Name the construct, or it names you.",
+      choices:[
+        { id:"nordheim-name", tag:"Oath", label:"Name it. Forge a blade that remembers the first amulet.", auto:true, oath:12, combat:"golem", person:"durak" },
+        { id:"nordheim-cap", tag:"Control", label:"Cap the relic. Let the System hold the name.", ctrl:12, combat:"golem", person:"durak" }
+      ]},
+    "nordheim-after": { id:"nordheim-after", act:"III", place:"Ironhold", who:"Durak Ironvein", bg:ART("nordheim.jpg"), portrait:ART("durak.jpg"),
+      text:"Fighting is forging existence from ache. Take the quench. Clan honor is material. Relics can rebel. So can you.",
+      choices:[{ id:"map-n", tag:"Map", label:"Return to Eden.", auto:true, map:true }]},
+    tezcal: { id:"tezcal", act:"IV", place:"Krystallis", who:"Xal’thok", bg:ART("tezcal-krystallis.jpg"), portrait:ART("xalthok.jpg"),
+      text:"Living artifacts outlast loyalty. The smile learns a second mouth here: Vexaroth as craft-echo, Zorathax as theology. He was invited. That is why it worked.",
+      alt:"He already knows which door you will pick. He smiles like a receipt.",
+      choices:[
+        { id:"tezcal-refuse", tag:"Oath", label:"Refuse the bargain. Draw on the honest anvil.", auto:true, oath:14, combat:"smile", person:"xalthok" },
+        { id:"tezcal-sign", tag:"Control", label:"Sign the receipt. Power with a name on it.", ctrl:14, combat:"smile", person:"xalthok" }
+      ]},
+    "tezcal-after": { id:"tezcal-after", act:"IV", place:"Embercrag", who:"Xal’thok", bg:ART("tezcal-embercrag.jpg"), portrait:ART("xalthok.jpg"),
+      text:"Existing is the fall from the top to the bottom’s truth. He is not done. The hour is not a duel you finish. It is a smile you carry.",
+      choices:[{ id:"map-t", tag:"Map", label:"Return to Eden.", auto:true, map:true }]},
+    abyssara: { id:"abyssara", act:"V", place:"Depthcall", who:"Abyssara", bg:ART("abyssara-depthcall.jpg"), portrait:ART("abyssara.jpg"),
+      text:"The sea as a second sky. Aquavelle’s change nurtures and drowns. A moon-portal opens that is not a moon. False eternal-moon rites are Betrayer work using a borrowed name.",
+      choices:[
+        { id:"abyssara-mend", tag:"Oath", label:"Mend the tide. Do not flood a rival coast.", auto:true, oath:12, combat:"tide" },
+        { id:"abyssara-flood", tag:"Control", label:"Use the portal as written. File the drowning.", ctrl:12, combat:"tide" }
+      ]},
+    "abyssara-after": { id:"abyssara-after", act:"V", place:"Silk Dunes", who:"Abyssara", bg:ART("abyssara-dunes.jpg"),
+      text:"Tenebris is not a nineteenth god. The dune does not keep a throne. It keeps a fire. The hour thins toward the bottom of the world.",
+      choices:[{ id:"map-a", tag:"Map", label:"Return to Eden.", auto:true, map:true }]},
+    vindraeth: { id:"vindraeth", act:"VI", place:"Blighted Wilds", who:"Thorne Voidwarden", bg:ART("vindraeth-wilds.jpg"), portrait:ART("thorne.jpg"),
+      text:"No city. Beauty that should not bloom. Thorne’s profession is grief. The Fracture was not weather. It was a murder, and the world became a warden rather than trust again.",
+      choices:[
+        { id:"vindraeth-seal", tag:"Oath", label:"Take the seal. Isolation is the cost.", auto:true, oath:16, remember:"sealedTheBottom", next:"vindraeth-after", person:"thorne" },
+        { id:"vindraeth-undeath", tag:"Control", label:"Accept the offer of eternal life. It is undeath.", ctrl:16, next:"vindraeth-after", person:"thorne" }
+      ]},
+    "vindraeth-after": { id:"vindraeth-after", act:"VI", place:"Shattered Spires", who:"Thorne Voidwarden", bg:ART("vindraeth-spires.jpg"), portrait:ART("thorne.jpg"),
+      text:"Fighting is the seal on existence’s tears. Crawl correctly. The next Seeker will have to survive this too. His name is already in the lattice.",
+      choices:[{ id:"map-v", tag:"Map", label:"Return to Eden.", auto:true, map:true, person:"ryx" }]},
+    caelus: { id:"caelus", act:"VII", place:"Caelus Hub", who:"Aeon Keeper Silas", bg:ART("caelus-hub.jpg"), portrait:ART("silas.jpg"),
+      text:"Time as architecture. Silas already holds both names in a loop. Ryx Ronin’s name waits in an hour Azrael does not own yet. Four doors. The empty throne of Aeltharion does not sit you.",
+      alt:"Silas does not greet you. He checks a ledger. Hour two is already written in a margin.",
+      choices:[{ id:"to-doors", tag:"Doors", label:"Walk the four doors.", auto:true, next:"doors", person:"silas" }]},
+    doors: { id:"doors", act:"VII", place:"The Hour", who:"Aeltharion", bg:ART("aeltharion.jpg"), portrait:ART("aeltharion.jpg"),
+      text:"A god was murdered. Eden stopped trusting oaths and installed a System. You can mend the lattice, become a kinder cage, walk without a throne, or smash the lock. The meters have been listening.",
+      alt:"The murdered sky remembers your last door. You may pick another. Ryx will crawl whichever one you leave.",
+      choices:[
+        { id:"door-mend", tag:"Mend", label:"Mend the lattice. Dual Flow as a door, not a weapon.", ending:"mend", oath:8 },
+        { id:"door-lock", tag:"Cage", label:"Become the lock. Safer. Smaller.", ending:"lock", ctrl:8 },
+        { id:"door-walk", tag:"Road", label:"Walk as Heartgrim walked. Immortal duty. No crown.", auto:true, ending:"walk" },
+        { id:"door-shatter", tag:"Shatter", label:"Break the lock. Honest, not kind.", ending:"shatter" }
+      ]}
+  };
+
+  const CONTINENT_BEAT = { elysara:"wake", xihuang:"xihuang", nordheim:"nordheim", tezcal:"tezcal", abyssara:"abyssara", vindraeth:"vindraeth", caelus:"caelus" };
+
+  function pickEnding(oath, ctrl) {
+    const diff = Math.abs(oath - ctrl);
+    if (oath >= 62 && oath > ctrl + 10) return "mend";
+    if (ctrl >= 62 && ctrl > oath + 10) return "lock";
+    if (diff < 16) return "walk";
+    return "shatter";
+  }
+
+  function loadSave() {
+    try {
+      const raw = localStorage.getItem(SAVE);
+      if (!raw) return { loop:1, memories:{}, visited:[], people:["azrael"] };
+      const s = JSON.parse(raw);
+      return { loop:s.loop||1, memories:s.memories||{}, visited:s.visited||[], people:s.people?.length?s.people:["azrael"] };
+    } catch { return { loop:1, memories:{}, visited:[], people:["azrael"] }; }
+  }
+  function persist() {
+    localStorage.setItem(SAVE, JSON.stringify({ version:2, loop:S.loop, memories:S.memories, visited:S.visited, people:S.people }));
+  }
+
+  const saved = loadSave();
+  const S = {
+    mode:"title", view:"scene", auto:false, loop:saved.loop, oath:0, ctrl:0, cls:"UNWRITTEN", path:null,
+    memories:saved.memories, visited:saved.visited, people:saved.people, beatId:"wake", story:null, fight:null,
+    toast:null, ending:null, muted:false, typed:0
+  };
+
+  let audio = null;
+  function unlockAudio() {
+    if (!audio) {
+      const ctx = new (window.AudioContext||window.webkitAudioContext)();
+      const master = ctx.createGain(); master.gain.value = 0.7; master.connect(ctx.destination);
+      const sfx = ctx.createGain(); sfx.gain.value = 0.45; sfx.connect(master);
+      const music = ctx.createGain(); music.gain.value = 0.16; music.connect(master);
+      audio = { ctx, master, sfx, music, muted:false };
+      const osc = ctx.createOscillator(); const g = ctx.createGain();
+      osc.type="sine"; osc.frequency.value=110; g.gain.value=0.001;
+      osc.connect(g); g.connect(music); osc.start();
+      g.gain.setTargetAtTime(0.18, ctx.currentTime, 1.4);
+    }
+    if (audio.ctx.state === "suspended") audio.ctx.resume();
+  }
+  function beep(freq, dur, type, gain, pan) {
+    if (!audio || audio.muted || S.muted) return;
+    const { ctx, sfx } = audio;
+    const o = ctx.createOscillator(); const g = ctx.createGain(); const p = ctx.createStereoPanner();
+    o.type = type; o.frequency.value = freq; p.pan.value = pan||0; g.gain.value = gain||0.16;
+    g.gain.setTargetAtTime(0.0001, ctx.currentTime + dur*0.4, dur*0.25);
+    o.connect(g); g.connect(p); p.connect(sfx); o.start(); o.stop(ctx.currentTime+dur);
+  }
+  const sfx = {
+    click(){ beep(720,.08,"square",.08); },
+    oath(){ beep(523,.22,"sine",.16,-.2); },
+    ctrl(){ beep(196,.22,"sawtooth",.1,.2); },
+    kima(){ beep(180,.16,"sawtooth",.22,-.4); beep(360,.1,"square",.1,-.2); },
+    anima(){ beep(880,.14,"sine",.16,.35); beep(1320,.08,"triangle",.08,.5); },
+    dual(){ beep(220,.2,"sawtooth",.2,-.3); beep(660,.18,"sine",.16,.3); },
+    hurt(){ beep(90,.2,"square",.18); },
+    win(){ beep(523,.18,"sine",.14); beep(784,.22,"sine",.12); }
+  };
+
+  function clamp(n){ return Math.max(0, Math.min(100, n)); }
+  function withBeat(beat){ return Object.assign({}, beat, { text: S.loop>1 && beat.alt ? beat.alt : beat.text }); }
+  function esc(s){ return String(s).replace(/[&<>"']/g, c => ({"&":"&","<":"<",">":">","\"":""","'":"&#39;"}[c])); }
+  function meter(label, value, kind){
+    return `<div class="meter"><label><span>${esc(label)}</span><span>${Math.round(value)}</span></label><div class="bar ${kind}"><i style="width:${Math.max(0,Math.min(100,value))}%"></i></div></div>`;
+  }
+  function chrome(){
+    const st = S.story;
+    return `<div class="chrome">
+      <div>
+        <p class="kick">Hour ${S.loop}${st ? ` · Act ${esc(st.act)} ${esc(st.place)}` : ""}</p>
+        <p class="paper" style="font-family:var(--display);font-size:18px">${S.cls==="UNWRITTEN"?"Seeker":esc(S.cls)}</p>
+        ${S.toast?`<p class="kick" style="margin:6px 0 0">${esc(S.toast)}</p>`:""}
+        <div class="meters">${meter("Oath",S.oath,"anima")}${meter("Control",S.ctrl,"kima")}</div>
+      </div>
+      <div class="tools">
+        ${S.view!=="map"?`<button class="btn" data-act="map">Eden</button>`:""}
+        <button class="btn" data-act="codex">Codex</button>
+        <button class="btn" data-act="mute">${S.muted?"Muted":"Sound"}</button>
+        <button class="btn" data-act="title">Title</button>
+      </div>
+    </div>`;
+  }
+
+  let typeTimer = 0, autoTimer = 0, combatRaf = 0;
+  const C = { hp:0, php:100, kima:50, anima:50, phase:"idle", tel:"anima", acc:0, done:false, log:"", shake:0, flash:null };
+
+  function boot(){
+    unlockAudio();
+    ["azrael.jpg","elysara-echoes.jpg","heartgrim.jpg","elysara-fields.jpg","wind-serpent.jpg","world.jpg","aeyra.jpg"].forEach(n=>{ const i=new Image(); i.src=ART(n); });
+  }
+
+  function startPlay(auto){
+    boot();
+    S.mode="play"; S.view="scene"; S.auto=auto; S.oath=0; S.ctrl=0; S.cls="UNWRITTEN"; S.path=null;
+    S.ending=null; S.fight=null; S.toast=null; S.beatId="wake"; S.story=withBeat(BEATS.wake);
+    if (!S.visited.includes("elysara")) S.visited = S.visited.concat("elysara");
+    S.typed=0; persist(); paint();
+  }
+
+  function choose(id){
+    if (id.startsWith("path-")) {
+      const path = id.slice(5); const p = PATHS[path];
+      sfx.oath();
+      S.cls=p.cls; S.path=path; S.toast="Class written: "+p.cls; S.beatId="classed";
+      const beat = withBeat(BEATS.classed);
+      beat.text = `Class written: ${p.cls}. ${p.line} Resonance Well marked. Overflow possible. Sanity is a resource. Walk. Sit with Heartgrim, or file the form.`;
+      S.story=beat; S.typed=0; paint(); return;
+    }
+    if (id==="hour-reset") {
+      S.loop += 1; S.memories.loopCount = S.loop; persist(); S.ending=null; S.view="scene"; startPlay(S.auto); return;
+    }
+    const choice = S.story && S.story.choices.find(c=>c.id===id);
+    if (!choice) return;
+    if (choice.remember) S.memories[choice.remember]=true;
+    if (choice.person && !S.people.includes(choice.person)) S.people = S.people.concat(choice.person);
+    S.oath = clamp(S.oath + (choice.oath||0));
+    S.ctrl = clamp(S.ctrl + (choice.ctrl||0));
+    if (choice.oath) { sfx.oath(); S.toast="Oath +"+choice.oath; }
+    else if (choice.ctrl) { sfx.ctrl(); S.toast="Control +"+choice.ctrl; }
+    else sfx.click();
+    if (choice.ending) { S.ending=choice.ending; S.view="ending"; persist(); paint(); return; }
+    if (choice.combat) {
+      S.fight = FIGHTS[choice.combat]; S.view="combat"; persist(); beginCombat(); paint(); return;
+    }
+    if (choice.map) { S.view="map"; persist(); paint(); return; }
+    if (choice.next && BEATS[choice.next]) {
+      S.beatId=choice.next; S.story=withBeat(BEATS[choice.next]); S.view="scene"; S.typed=0; persist(); paint();
+    }
+  }
+
+  function enterContinent(id){
+    if (id==="caelus") {
+      const others = S.visited.filter(v=>v!=="elysara"&&v!=="caelus");
+      if (others.length<2 && !S.auto) { S.toast="The Hour waits until two continents have been walked."; paint(); return; }
+    }
+    const beatId = CONTINENT_BEAT[id]; const beat = BEATS[beatId]; if (!beat) return;
+    if (!S.visited.includes(id)) S.visited = S.visited.concat(id);
+    const c = CONTINENTS.find(x=>x.id===id);
+    S.beatId=beatId; S.story=withBeat(beat); S.view="scene"; S.typed=0; S.toast = c ? `Act ${c.act} · ${c.name}` : null;
+    persist(); sfx.click(); paint();
+  }
+
+  function beginCombat(){
+    const f = S.fight; const wells = S.path ? PATHS[S.path] : { kima:50, anima:50 };
+    C.hp=f.hp; C.php=100; C.kima=wells.kima; C.anima=wells.anima; C.phase="idle"; C.tel="anima";
+    C.acc=0; C.done=false; C.log=f.hint; C.shake=0; C.flash=null;
+    cancelAnimationFrame(combatRaf); lastT=performance.now(); combatRaf=requestAnimationFrame(combatTick);
+  }
+
+  let lastT=0;
+  function combatTick(now){
+    const dt = Math.min(0.05, (now-lastT)/1000); lastT=now;
+    if (!C.done && S.view==="combat") {
+      C.kima = Math.min(100, C.kima + 12*dt);
+      C.anima = Math.min(100, C.anima + 12*dt);
+      C.acc += dt; C.shake *= 0.55;
+      if (C.php<=0) { C.php=60; C.log="The hour caught you. Wells reopen."; S.ctrl=clamp(S.ctrl+4); S.toast="The hour caught you. Wells reopen."; sfx.hurt(); }
+      if (C.phase==="idle" && C.acc>0.9) {
+        C.tel = Math.random()<0.58 ? S.fight.weak : (S.fight.weak==="anima"?"kima":"anima");
+        C.phase="telegraph"; C.log = C.tel==="kima" ? "Body gathers in the lattice." : "Soul threads the crack."; C.acc=0;
+      } else if (C.phase==="telegraph" && C.acc>1.2) { C.phase="strike"; C.acc=0; }
+      else if (C.phase==="strike" && C.acc>0.65) {
+        C.php = Math.max(0, C.php - (S.fight.id==="smile"?16:12));
+        C.flash="hurt"; C.shake=10; C.log="The regulation lands."; C.phase="idle"; C.acc=0; sfx.hurt();
+        setTimeout(()=>{ C.flash=null; }, 180);
+      }
+      if (S.auto && (C.phase==="idle"||C.phase==="telegraph") && C.acc>0.5) strike(S.fight.weak);
+      paintCombatHud();
+    }
+    if (S.view==="combat") combatRaf=requestAnimationFrame(combatTick);
+  }
+
+  function strike(kind){
+    if (C.done || C.hp<=0 || S.view!=="combat") return;
+    if (kind==="kima" && C.kima<20) return;
+    if (kind==="anima" && C.anima<20) return;
+    if (kind==="dual" && (C.kima<38||C.anima<38)) return;
+    if (kind==="kima") C.kima-=22;
+    if (kind==="anima") C.anima-=22;
+    if (kind==="dual") { C.kima-=40; C.anima-=40; }
+    if (kind==="kima") sfx.kima(); else if (kind==="anima") sfx.anima(); else sfx.dual();
+    let dmg = kind==="dual"?34:18;
+    const f = S.fight;
+    if (kind!=="dual") { if (f.resist===kind) dmg*=0.5; if (f.weak===kind) dmg*=1.45; } else dmg*=1.35;
+    if (S.path==="forged" && kind==="kima") dmg*=1.2;
+    if (S.path==="lapis" && kind==="anima") dmg*=1.2;
+    if (S.path==="crucible" && kind==="dual") dmg*=1.15;
+    if (C.phase==="telegraph" && (kind===C.tel || kind==="dual")) dmg*=1.25;
+    C.hp = Math.max(0, C.hp-dmg); C.flash=kind; C.shake = kind==="dual"?14:7; C.phase="idle"; C.acc=0;
+    C.log = kind==="dual" ? "Dual Pulse. The System hates this." : (kind===f.weak ? (kind==="anima"?"Anima":"Kima")+" finds the weakness." : (kind==="anima"?"Anima":"Kima")+" meets resistance.");
+    setTimeout(()=>{ C.flash=null; }, 220);
+    if (C.hp<=0) {
+      C.done=true; sfx.win();
+      setTimeout(()=>{
+        S.memories["cleared:"+f.id]=true; S.fight=null; S.view="scene"; S.beatId=f.next;
+        S.story = BEATS[f.next] ? withBeat(BEATS[f.next]) : S.story; S.typed=0;
+        S.toast=f.foeName+" held"; S.oath=clamp(S.oath+8); S.ctrl=clamp(S.ctrl+2); persist(); paint();
+      }, 640);
+    }
+  }
+
+  function stepDodge(){
+    if (S.view!=="combat") return;
+    if (C.phase==="strike") { C.phase="idle"; C.acc=0; C.log="Step. The hour misses."; sfx.click(); }
+  }
+
+  function paintCombatHud(){
+    const hpEl = document.getElementById("foe-hp");
+    const phpEl = document.getElementById("az-hp");
+    const kEl = document.getElementById("kima-bar");
+    const aEl = document.getElementById("anima-bar");
+    const logEl = document.getElementById("clog");
+    const pulse = document.getElementById("pulse");
+    if (!hpEl) return;
+    const f = S.fight; if (!f) return;
+    hpEl.style.width = (C.hp/f.hp*100)+"%";
+    phpEl.style.width = C.php+"%";
+    kEl.style.width = C.kima+"%"; aEl.style.width = C.anima+"%";
+    document.getElementById("kima-n").textContent = Math.round(C.kima);
+    document.getElementById("anima-n").textContent = Math.round(C.anima);
+    logEl.textContent = C.log;
+    pulse.className = "pulse" + (C.phase==="telegraph" ? (C.tel==="kima"?" tel-kima":" tel-anima") : "");
+    pulse.textContent = C.phase==="telegraph" ? C.tel : C.phase==="strike" ? "hit" : "pulse";
+    const az = document.getElementById("az-img"); const fo = document.getElementById("foe-img");
+    if (az) az.className = C.flash==="hurt" ? "flash" : "";
+    if (fo) fo.className = C.flash && C.flash!=="hurt" ? "flash" : "";
+    const stage = document.getElementById("cstage");
+    if (stage) stage.style.transform = C.shake ? `translateX(${((Math.random()-0.5)*C.shake).toFixed(1)}px)` : "";
+  }
+
+  function titleHTML(){
+    return `<div class="screen">
+      <video class="bleed" src="${VID("trailer.mp4")}" poster="${VID("poster.jpg")}" autoplay muted loop playsinline></video>
+      <div class="veil"></div><div class="lattice"></div>
+      <div class="pad" style="position:absolute;inset:auto 0 0;z-index:10;padding:64px 20px 40px;max-width:none">
+        <p class="kick">Circuit Ink · Eden · seven continents</p>
+        <h1>Aetherion</h1>
+        <p class="mute" style="max-width:46ch;margin-top:16px">A god was murdered. Eden stopped trusting oaths and installed a System. Azrael Raven inherits a broken Dual Flow amulet. Walk the hour. Keep a table, or file the form.</p>
+        <div class="row">
+          <button class="btn primary" data-act="play">Play Hour</button>
+          <button class="btn" data-act="auto">Auto-Demo</button>
+          <button class="btn ghost" data-act="codex">Codex</button>
+          <a class="btn ghost" href="${VID("trailer.mp4")}" download="Aetherion-Eden-Trailer.mp4">Trailer</a>
+          <button class="btn ghost" data-act="wipe">Clear hour</button>
+        </div>
+        <p class="mute" style="font-size:12px;letter-spacing:.16em;text-transform:uppercase;margin-top:20px">Hour ${S.loop} · Oath / Control · Kima / Anima / Dual Pulse · Fracture Hour loops</p>
+      </div>
+    </div>`;
+  }
+
+  function sceneHTML(){
+    const st = S.story; if (!st) return "";
+    const shown = st.text.slice(0, S.typed);
+    const caret = S.typed < st.text.length ? `<span class="caret">▌</span>` : "";
+    return `<div class="screen">
+      <div class="bleed" style="background-image:url('${st.bg}')"></div>
+      <div class="veil"></div><div class="lattice"></div>
+      ${st.portrait?`<img class="portrait" src="${st.portrait}" alt="" />`:""}
+      ${chrome()}
+      <div class="pad bottom"><div class="inner">
+        <p class="kick ${st.sys?"":"kima"}">${esc(st.who)}</p>
+        <p class="paper" style="margin:8px 0 0;max-width:62ch" data-act="skip-type">${esc(shown)}${caret}</p>
+        <div class="choices">${st.choices.map(c=>`<button class="choice" data-choose="${esc(c.id)}"><span class="tag">${esc(c.tag)}</span>${esc(c.label)}</button>`).join("")}</div>
+      </div></div>
+    </div>`;
+  }
+
+  function mapHTML(){
+    const others = S.visited.filter(v=>v!=="elysara"&&v!=="caelus");
+    const caelusOpen = others.length>=2 || S.auto;
+    return `<div class="screen">
+      <div class="bleed" style="background-image:url('${ART("world.jpg")}')"></div>
+      <div class="veil"></div>${chrome()}
+      <div class="pad" style="position:absolute;inset:auto 0 0;z-index:10;padding:120px 20px 24px;max-width:none">
+        <p class="kick">Eden · seven inhabited continents</p>
+        <p class="mute" style="max-width:54ch;margin-top:8px">Walk the world. Caelus Prime opens after two continents beyond Elysara. The hour will wait.</p>
+        <div class="grid7">${CONTINENTS.map(c=>{
+          const locked = c.id==="caelus" && !caelusOpen;
+          const done = S.visited.includes(c.id);
+          return `<button class="card" data-land="${c.id}" ${locked?"disabled":""}>
+            <img src="${c.bg}" alt="" />
+            <div class="b"><span class="dot ${done?"done":locked?"lock":""}"></span>
+            <p style="font-family:var(--display);margin:4px 0 0">${esc(c.name)}</p>
+            <p class="mute" style="font-size:11px;letter-spacing:.2em;text-transform:uppercase">Act ${c.act}${locked?" · locked":""}</p></div>
+          </button>`;
+        }).join("")}</div>
+        <button class="btn" data-act="back" style="margin-top:16px">Back</button>
+      </div>
+    </div>`;
+  }
+
+  function codexHTML(){
+    const known = PEOPLE.filter(p=>S.people.includes(p.id)||p.id==="azrael");
+    const door = ENDINGS[pickEnding(S.oath,S.ctrl)];
+    return `<div class="codex">
+      <p class="kick">Codex · Hour ${S.loop}</p>
+      <h2 style="margin-top:8px">Aetherion · Eden</h2>
+      <p class="mute" style="max-width:60ch;margin-top:12px">Class ${S.cls==="UNWRITTEN"?"unwritten":esc(S.cls)}. The meters have been listening. Suggested door: ${esc(door.name)}.</p>
+      <div class="meters" style="margin-top:24px">${meter("Oath",S.oath,"anima")}${meter("Control",S.ctrl,"kima")}</div>
+      <h3 style="margin-top:40px">People</h3>
+      <div class="people">${known.map(p=>`<article class="person"><img src="${p.image}" alt="" /><div class="b"><p class="kick">${esc(p.title)}</p><h3 style="font-size:18px;margin-top:4px">${esc(p.name)}</h3><p class="mute" style="margin-top:8px">${esc(p.line)}</p></div></article>`).join("")}</div>
+      <h3 style="margin-top:40px">Continents walked</h3>
+      <ul style="list-style:none;padding:0;display:grid;gap:8px;margin-top:12px">${CONTINENTS.map(c=>`<li class="btn" style="justify-content:flex-start;gap:12px"><span class="dot ${S.visited.includes(c.id)?"done":"lock"}"></span>Act ${c.act} · ${esc(c.name)}</li>`).join("")}</ul>
+      <h3 style="margin-top:40px">Memories that persist</h3>
+      <p class="mute">${Object.keys(S.memories).length?esc(Object.keys(S.memories).join(" · ")):"The body resets. The visor does not."}</p>
+      <div class="row">${S.mode==="play"?`<button class="btn primary" data-act="back">Return</button>`:""}<button class="btn" data-act="title">Title</button></div>
+    </div>`;
+  }
+
+  function endingHTML(){
+    const e = ENDINGS[S.ending]; if (!e) return "";
+    return `<div class="screen">
+      <div class="bleed" style="background-image:url('${e.bg}')"></div>
+      <div class="veil"></div>
+      <div class="pad" style="position:absolute;inset:auto 0 0;z-index:10;padding:48px 20px 40px;max-width:none">
+        <p class="kick kima">Fracture Hour · ${S.loop}</p>
+        <h2 style="margin-top:8px">${esc(e.name)}</h2>
+        <p class="mute" style="font-size:12px;letter-spacing:.26em;text-transform:uppercase;margin-top:8px">${esc(e.need)}</p>
+        <p class="mute" style="max-width:54ch;margin-top:16px">${esc(e.body)}</p>
+        <p class="kick" style="max-width:54ch;margin-top:16px;letter-spacing:0;text-transform:none">The body resets. The visor does not. Wake in the next hour.</p>
+        <button class="btn primary" data-choose="hour-reset" style="margin-top:24px">Wake in the next hour</button>
+      </div>
+    </div>`;
+  }
+
+  function combatHTML(){
+    const f = S.fight; if (!f) return "";
+    return `<div class="screen" id="cstage">
+      <div class="bleed" style="background-image:url('${f.bg}')"></div>
+      <div class="veil"></div><div class="lattice"></div>
+      <div style="position:relative;z-index:10;min-height:100dvh;display:flex;flex-direction:column;justify-content:space-between;padding:16px 16px 20px">
+        <div style="display:flex;justify-content:space-between;gap:16px">
+          <div><p class="kick">${esc(f.subtitle)}</p><h2 style="margin-top:4px">${esc(f.name)}</h2></div>
+          <button class="btn" data-act="title">Title</button>
+        </div>
+        <p class="mute" id="clog" style="font-size:12px">${esc(C.log)}</p>
+        <div class="fighters">
+          <div class="fighter"><div class="frame"><img id="az-img" src="${ART("azrael.jpg")}" alt="" /><div class="cap"><p style="font-family:var(--display)">${esc("Azrael")}</p><div class="bar paper"><i id="az-hp" style="width:${C.php}%"></i></div></div></div></div>
+          <div id="pulse" class="pulse">pulse</div>
+          <div class="fighter" style="text-align:right"><div class="frame"><img id="foe-img" src="${f.foe}" alt="" /><div class="cap"><p style="font-family:var(--display)">${esc(f.foeName)}</p><div class="bar kima"><i id="foe-hp" style="width:${C.hp/f.hp*100}%"></i></div></div></div></div>
+        </div>
+        <div class="panel">
+          <div class="meters" style="width:auto;margin:0 0 12px">
+            <div class="meter"><label><span>Kima</span><span id="kima-n">${Math.round(C.kima)}</span></label><div class="bar kima"><i id="kima-bar" style="width:${C.kima}%"></i></div></div>
+            <div class="meter"><label><span>Anima</span><span id="anima-n">${Math.round(C.anima)}</span></label><div class="bar anima"><i id="anima-bar" style="width:${C.anima}%"></i></div></div>
+          </div>
+          <div class="acts">
+            <button class="act kima" data-strike="kima">Kima<small>J · body</small></button>
+            <button class="act anima" data-strike="anima">Anima<small>K · soul</small></button>
+            <button class="act" data-strike="dual">Dual Pulse<small>L · both</small></button>
+            <button class="act" data-act="step">Step<small>Shift</small></button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function paint(){
+    cancelAnimationFrame(combatRaf);
+    clearInterval(typeTimer); clearTimeout(autoTimer);
+    const root = document.getElementById("app");
+    if (S.mode==="title" && S.view!=="codex") root.innerHTML = titleHTML();
+    else if (S.view==="codex") root.innerHTML = codexHTML();
+    else if (S.view==="map") root.innerHTML = mapHTML();
+    else if (S.view==="ending") root.innerHTML = endingHTML();
+    else if (S.view==="combat" && S.fight) { root.innerHTML = combatHTML(); lastT=performance.now(); combatRaf=requestAnimationFrame(combatTick); }
+    else if (S.story) {
+      root.innerHTML = sceneHTML();
+      typeTimer = setInterval(()=>{
+        if (!S.story) return;
+        S.typed = Math.min(S.story.text.length, S.typed+2);
+        const p = root.querySelector("[data-act='skip-type']");
+        if (p) p.innerHTML = esc(S.story.text.slice(0,S.typed)) + (S.typed<S.story.text.length?'<span class="caret">▌</span>':"");
+        if (S.typed>=S.story.text.length) clearInterval(typeTimer);
+      }, 16);
+    } else root.innerHTML = codexHTML();
+
+    if (S.auto && S.view==="scene" && S.story) {
+      const pick = S.story.choices.find(c=>c.auto) || S.story.choices[0];
+      if (pick) autoTimer = setTimeout(()=>choose(pick.id), 2200);
+    }
+    if (S.auto && S.view==="map") {
+      autoTimer = setTimeout(()=>{
+        const next = CONTINENTS.find(c=>c.id!=="elysara"&&c.id!=="caelus"&&!S.visited.includes(c.id));
+        enterContinent(next ? next.id : "caelus");
+      }, 1600);
+    }
+  }
+
+  document.getElementById("app").addEventListener("click", (e)=>{
+    const t = e.target.closest("[data-act],[data-choose],[data-land],[data-strike]");
+    if (!t) return;
+    if (t.dataset.act==="play") startPlay(false);
+    else if (t.dataset.act==="auto") startPlay(true);
+    else if (t.dataset.act==="codex") { boot(); S.view="codex"; paint(); }
+    else if (t.dataset.act==="map") { if (S.mode==="title") startPlay(false); S.view="map"; paint(); }
+    else if (t.dataset.act==="title") { S.mode="title"; S.auto=false; S.view="scene"; S.story=null; S.fight=null; S.ending=null; paint(); }
+    else if (t.dataset.act==="mute") { S.muted=!S.muted; if (audio) audio.muted=S.muted; paint(); }
+    else if (t.dataset.act==="wipe") { localStorage.removeItem(SAVE); S.loop=1; S.memories={}; S.visited=[]; S.people=["azrael"]; S.toast="Hour memory cleared"; paint(); }
+    else if (t.dataset.act==="back") { if (S.ending) S.view="ending"; else if (S.fight) S.view="combat"; else S.view="scene"; paint(); }
+    else if (t.dataset.act==="skip-type" && S.story) { S.typed=S.story.text.length; paint(); }
+    else if (t.dataset.act==="step") stepDodge();
+    else if (t.dataset.choose) choose(t.dataset.choose);
+    else if (t.dataset.land) enterContinent(t.dataset.land);
+    else if (t.dataset.strike) strike(t.dataset.strike);
+  });
+
+  window.addEventListener("keydown", (e)=>{
+    if (e.code==="Digit1"||e.code==="Digit2"||e.code==="Digit3"||e.code==="Digit4") {
+      const i = Number(e.code.slice(-1))-1;
+      const c = S.story && S.view==="scene" && S.story.choices[i];
+      if (c) choose(c.id);
+    }
+    if (e.code==="KeyJ"||e.code==="Digit1") strike("kima");
+    if (e.code==="KeyK"||e.code==="Digit2") strike("anima");
+    if (e.code==="KeyL"||e.code==="Digit3"||e.code==="KeyQ") strike("dual");
+    if (e.code==="ShiftLeft"||e.code==="ShiftRight") stepDodge();
+  });
+
+  paint();
+})();
+</script>
+</body>
+</html>
